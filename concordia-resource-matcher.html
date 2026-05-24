@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Concordia Student Resource Finder</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/tabler-icons.min.css">
+<style>
+  :root {
+    --purple: #534AB7;
+    --purple-light: #EEEDFE;
+    --purple-dark: #3C3489;
+    --teal: #0F6E56;
+    --teal-light: #E1F5EE;
+    --blue: #185FA5;
+    --blue-light: #E6F1FB;
+    --amber: #854F0B;
+    --amber-light: #FAEEDA;
+    --coral: #993C1D;
+    --coral-light: #FAECE7;
+    --green: #3B6D11;
+    --green-light: #EAF3DE;
+    --pink: #993556;
+    --pink-light: #FBEAF0;
+    --gray: #5F5E5A;
+    --gray-light: #F1EFE8;
+    --bg: #ffffff;
+    --bg2: #f7f6f3;
+    --bg3: #f0ede8;
+    --text: #1a1a1a;
+    --text2: #6b6b6b;
+    --text3: #9a9a9a;
+    --border: rgba(0,0,0,0.12);
+    --border2: rgba(0,0,0,0.22);
+    --radius: 10px;
+    --radius-lg: 14px;
+    --red: #912338;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg2);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: var(--red);
+    color: white;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .header-logo {
+    width: 36px; height: 36px;
+    background: white;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .header-logo i { font-size: 20px; color: var(--red); }
+  .header-text h1 { font-size: 18px; font-weight: 600; line-height: 1.2; }
+  .header-text p { font-size: 13px; opacity: 0.85; }
+
+  /* Layout */
+  .main { max-width: 720px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+
+  /* Tabs */
+  .tabs {
+    display: flex; gap: 4px;
+    background: var(--bg3);
+    border-radius: var(--radius);
+    padding: 4px;
+    margin-bottom: 1.5rem;
+  }
+  .tab {
+    flex: 1; padding: 9px 12px;
+    border: none; border-radius: 8px;
+    font-size: 13px; font-weight: 500;
+    cursor: pointer; background: transparent;
+    color: var(--text2); transition: all .15s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .tab.active {
+    background: var(--bg);
+    color: var(--text);
+    border: 0.5px solid var(--border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .tab i { font-size: 16px; }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  .section-label {
+    font-size: 11px; font-weight: 600;
+    color: var(--text3); letter-spacing: .07em;
+    text-transform: uppercase; margin-bottom: 10px;
+  }
+  .divider { height: 0.5px; background: var(--border); margin: 1.25rem 0; }
+
+  /* Quiz */
+  .progress-bar {
+    height: 4px; background: var(--bg3);
+    border-radius: 999px; margin-bottom: 1.25rem; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--purple);
+    border-radius: 999px; transition: width .35s ease;
+  }
+  .quiz-back {
+    background: none; border: none;
+    font-size: 13px; color: var(--text2);
+    cursor: pointer; display: inline-flex;
+    align-items: center; gap: 5px; padding: 0;
+    margin-bottom: 1rem; transition: color .15s;
+  }
+  .quiz-back:hover { color: var(--text); }
+  .quiz-card {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+  }
+  .quiz-q {
+    font-size: 17px; font-weight: 600;
+    color: var(--text); margin-bottom: 1.1rem; line-height: 1.4;
+  }
+  .quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+  .quiz-opt {
+    background: var(--bg2); border: 0.5px solid var(--border);
+    border-radius: var(--radius); padding: 11px 14px;
+    text-align: left; cursor: pointer;
+    font-size: 14px; color: var(--text);
+    transition: all .15s; display: flex;
+    align-items: center; gap: 11px;
+  }
+  .quiz-opt:hover { border-color: var(--purple); background: var(--purple-light); color: var(--purple-dark); }
+  .quiz-opt i { font-size: 18px; color: var(--text2); flex-shrink: 0; }
+  .quiz-opt:hover i { color: var(--purple); }
+
+  /* Result cards */
+  .results { display: flex; flex-direction: column; gap: 10px; }
+  .rcard {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.25rem;
+    display: flex; gap: 13px; align-items: flex-start;
+    transition: box-shadow .15s;
+  }
+  .rcard:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+  .ricon {
+    width: 40px; height: 40px; border-radius: var(--radius);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+  .rbody { flex: 1; min-width: 0; }
+  .rname { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+  .rdesc { font-size: 13px; color: var(--text2); line-height: 1.5; margin-bottom: 8px; }
+  .rtags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 9px; }
+  .tag { font-size: 11px; padding: 2px 9px; border-radius: 999px; font-weight: 500; }
+  .rlink {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 12px; font-weight: 500;
+    padding: 5px 11px; border-radius: var(--radius);
+    border: 0.5px solid var(--border2);
+    color: var(--text); text-decoration: none;
+    background: var(--bg2); transition: all .15s;
+  }
+  .rlink:hover { background: var(--purple-light); border-color: var(--purple); color: var(--purple-dark); }
+  .rlink i { font-size: 13px; }
+
+  /* Browse */
+  .needs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+    gap: 8px; margin-bottom: 1.25rem;
+  }
+  .need-btn {
+    background: var(--bg); border: 0.5px solid var(--border);
+    border-radius: var(--radius); padding: 10px 12px;
+    text-align: left; cursor: pointer;
+    transition: all .15s; display: flex;
+    align-items: flex-start; gap: 9px;
+  }
+  .need-btn:hover { border-color: var(--border2); background: var(--bg2); }
+  .need-btn.sel { border-color: var(--purple); background: var(--purple-light); }
+  .need-btn i { font-size: 17px; color: var(--text2); padding-top: 1px; flex-shrink: 0; }
+  .need-btn.sel i { color: var(--purple); }
+  .nblabel { font-size: 13px; font-weight: 500; color: var(--text); line-height: 1.35; }
+  .nbdesc { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .need-btn.sel .nblabel { color: var(--purple-dark); }
+
+  .select-prompt {
+    text-align: center; padding: 1.75rem;
+    color: var(--text2); font-size: 14px;
+    border: 0.5px dashed var(--border2);
+    border-radius: var(--radius-lg);
+  }
+
+  /* Editor */
+  .editor-list { display: flex; flex-direction: column; gap: 7px; }
+  .editor-item {
+    background: var(--bg); border: 0.5px solid var(--border);
+    border-radius: var(--radius); padding: 11px 14px;
+    display: flex; align-items: center; gap: 10px;
+    cursor: pointer; transition: all .15s;
+  }
+  .editor-item:hover { border-color: var(--border2); box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .ei-name { font-size: 14px; font-weight: 500; flex: 1; }
+  .ei-tags { font-size: 12px; color: var(--text2); }
+  .ei-chevron { font-size: 16px; color: var(--text3); }
+  .edit-form {
+    background: var(--bg); border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg); padding: 1.25rem;
+    margin-top: 12px;
+  }
+  .form-row { margin-bottom: 13px; }
+  .form-label { font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 5px; display: block; }
+  .form-row input, .form-row textarea, .form-row select {
+    width: 100%; padding: 8px 10px;
+    border: 0.5px solid var(--border2); border-radius: 8px;
+    font-size: 13px; font-family: inherit;
+    background: var(--bg); color: var(--text);
+    outline: none; transition: border-color .15s;
+  }
+  .form-row input:focus, .form-row textarea:focus, .form-row select:focus { border-color: var(--purple); }
+  .form-row textarea { min-height: 68px; resize: vertical; }
+  .form-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; align-items: center; }
+  .btn-save {
+    background: var(--purple); border: none;
+    color: white; border-radius: 8px;
+    padding: 8px 16px; font-size: 13px;
+    font-weight: 500; cursor: pointer;
+    transition: opacity .15s;
+  }
+  .btn-save:hover { opacity: .88; }
+  .btn-delete {
+    background: none; border: 0.5px solid #e8a0a0;
+    color: #A32D2D; border-radius: 8px;
+    padding: 8px 14px; font-size: 13px; cursor: pointer;
+  }
+  .btn-cancel {
+    background: none; border: 0.5px solid var(--border2);
+    color: var(--text2); border-radius: 8px;
+    padding: 8px 14px; font-size: 13px; cursor: pointer;
+  }
+  .btn-cancel:hover, .btn-delete:hover { opacity: .8; }
+  .btn-add {
+    display: inline-flex; align-items: center; gap: 5px;
+    margin-top: 10px; font-size: 13px; font-weight: 500;
+    color: var(--purple); background: none;
+    border: 0.5px dashed var(--purple);
+    border-radius: 8px; padding: 7px 14px;
+    cursor: pointer; transition: background .15s;
+  }
+  .btn-add:hover { background: var(--purple-light); }
+  .saved-toast {
+    display: none; align-items: center; gap: 5px;
+    font-size: 12px; color: var(--teal); font-weight: 500;
+    padding: 6px 10px; background: var(--teal-light);
+    border-radius: 8px;
+  }
+
+  /* Result header */
+  .result-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .result-count {
+    font-size: 13px; color: var(--text2);
+    background: var(--bg3); padding: 4px 10px;
+    border-radius: 999px; border: 0.5px solid var(--border);
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center; margin-top: 2.5rem;
+    font-size: 12px; color: var(--text3);
+  }
+  .footer a { color: var(--red); text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 480px) {
+    .header { padding: 1rem; }
+    .main { padding: 1rem 0.75rem 2.5rem; }
+    .needs-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    .quiz-q { font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo"><i class="ti ti-map-search"></i></div>
+  <div class="header-text">
+    <h1>Concordia Resource Finder</h1>
+    <p>Find the right student support, fast</p>
+  </div>
+</div>
+
+<div class="main">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('quiz')"><i class="ti ti-list-check"></i> Quick quiz</button>
+    <button class="tab" onclick="switchTab('browse')"><i class="ti ti-layout-grid"></i> Browse all</button>
+    <button class="tab" onclick="switchTab('edit')"><i class="ti ti-pencil"></i> Edit resources</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="view active" id="view-quiz">
+    <div class="progress-bar"><div class="progress-fill" id="qprog" style="width:0%"></div></div>
+    <div id="quiz-content"></div>
+  </div>
+
+  <!-- BROWSE -->
+  <div class="view" id="view-browse">
+    <div class="section-label">What do you need help with?</div>
+    <div class="needs-grid" id="needsGrid"></div>
+    <div class="divider"></div>
+    <div id="browseResults"></div>
+  </div>
+
+  <!-- EDIT -->
+  <div class="view" id="view-edit">
+    <p style="font-size:13px;color:var(--text2);margin-bottom:1rem;">Click any resource below to edit it. Changes apply immediately across all tabs.</p>
+    <div class="editor-list" id="editorList"></div>
+    <button class="btn-add" onclick="addResource()"><i class="ti ti-plus"></i> Add new resource</button>
+    <div id="editFormContainer"></div>
+  </div>
+
+  <div class="footer">
+    Built for Concordia students &nbsp;·&nbsp;
+    <a href="https://www.concordia.ca/students.html" target="_blank">Student Hub</a> &nbsp;·&nbsp;
+    <a href="https://www.concordia.ca/students/health.html" target="_blank">Health Services</a> &nbsp;·&nbsp;
+    <a href="https://library.concordia.ca/" target="_blank">Library</a>
+  </div>
+</div>
+
+<script>
+const colorMap={
+  purple:{bg:"#EEEDFE",ic:"#534AB7"},teal:{bg:"#E1F5EE",ic:"#0F6E56"},
+  blue:{bg:"#E6F1FB",ic:"#185FA5"},amber:{bg:"#FAEEDA",ic:"#854F0B"},
+  coral:{bg:"#FAECE7",ic:"#993C1D"},green:{bg:"#EAF3DE",ic:"#3B6D11"},
+  pink:{bg:"#FBEAF0",ic:"#993556"},gray:{bg:"#F1EFE8",ic:"#5F5E5A"}
+};
+const tagStyles={
+  purple:"background:#EEEDFE;color:#3C3489",teal:"background:#E1F5EE;color:#085041",
+  blue:"background:#E6F1FB;color:#0C447C",amber:"background:#FAEEDA;color:#633806",
+  coral:"background:#FAECE7;color:#712B13",green:"background:#EAF3DE;color:#27500A",
+  pink:"background:#FBEAF0;color:#72243E",gray:"background:#F1EFE8;color:#444441"
+};
+
+let resources=[
+  {id:1,name:"First Stop",desc:"The front desk kiosk — ask anything and the team will point you to the right support or service.",icon:"ti-map-pin",color:"purple",tags:["General questions","Any need"],needs:["general","new"],url:"https://www.concordia.ca/students/services/cu-essentials.html"},
+  {id:2,name:"Welcome Crew Mentors",desc:"Peer mentors who help new students with registration, orientation, and first-year questions.",icon:"ti-users",color:"teal",tags:["First-year","Registration","Orientation"],needs:["new"],url:"https://www.concordia.ca/students/new.html"},
+  {id:3,name:"Student Service Station",desc:"Weekly online drop-in with academic advisors and staff over Zoom.",icon:"ti-calendar",color:"blue",tags:["Online","Weekly drop-in","Advisors"],needs:["academic","advising","general","new"],url:"https://www.concordia.ca/students/undergraduate.html"},
+  {id:4,name:"Academic Advisors",desc:"One-on-one guidance on degree requirements, minors, and program changes.",icon:"ti-user-check",color:"purple",tags:["Degree planning","Minors","Program changes"],needs:["advising","new","academic"],url:"https://www.concordia.ca/students/services/advising.html"},
+  {id:5,name:"Student Success Centre",desc:"Study strategies, math help, writing support, skill development, and career planning.",icon:"ti-target",color:"green",tags:["Study skills","Math","Writing","Career"],needs:["academic","career"],url:"https://www.concordia.ca/students/success.html"},
+  {id:6,name:"Birks Student Centre",desc:"For account issues, tuition payments, and general student inquiries.",icon:"ti-building",color:"amber",tags:["Tuition","Accounts","General"],needs:["financial","general"],url:"https://www.concordia.ca/students/birks.html"},
+  {id:7,name:"IT Support",desc:"Help with wifi, email, computer labs, software licenses, and equipment loans.",icon:"ti-device-desktop",color:"blue",tags:["Wifi","Email","Software","Equipment"],needs:["tech"],url:"https://www.concordia.ca/it.html"},
+  {id:8,name:"Health Services — Medical",desc:"Medical care clinic, vaccinations, and general health and lifestyle advice.",icon:"ti-stethoscope",color:"teal",tags:["Medical clinic","Vaccinations","Health"],needs:["medical","sexual"],url:"https://www.concordia.ca/students/health.html"},
+  {id:9,name:"Mental Health Support",desc:"Counselling and mental health services to support your emotional wellbeing.",icon:"ti-heart",color:"pink",tags:["Counselling","Wellbeing","Stress"],needs:["mental"],url:"https://www.concordia.ca/students/health.html"},
+  {id:10,name:"Sexual & Reproductive Health",desc:"Free menstrual products, condoms, and access to health professionals.",icon:"ti-shield-heart",color:"coral",tags:["Free products","Sexual health"],needs:["sexual","medical"],url:"https://www.concordia.ca/students/health.html"},
+  {id:11,name:"Library",desc:"Course materials, databases, e-journals, equipment loans, citation support, and AI workshops.",icon:"ti-building-library",color:"amber",tags:["Research","Databases","Citations","AI workshops"],needs:["library","academic"],url:"https://library.concordia.ca/"},
+  {id:12,name:"Tailored Student Support",desc:"Dedicated resources for Black, Indigenous, Francophone, and international students, and more.",icon:"ti-users-group",color:"coral",tags:["Black students","Indigenous","International","Francophone"],needs:["identity","new"],url:"https://www.concordia.ca/students/international.html"},
+  {id:13,name:"Access Centre — Disabilities",desc:"Accommodations and accessibility support for students with disabilities.",icon:"ti-accessible",color:"blue",tags:["Accommodations","Accessibility"],needs:["disability"],url:"https://www.concordia.ca/students/accessibility.html"},
+  {id:14,name:"Students with Children",desc:"Resources and support services specifically for students who are parents or caregivers.",icon:"ti-baby-carriage",color:"teal",tags:["Parents","Family support"],needs:["family"],url:"https://www.concordia.ca/students/services/cu-essentials.html"},
+];
+let nextId=15;
+
+const needs=[
+  {id:"new",label:"I'm new to Concordia",desc:"Registration, first steps",icon:"ti-door-enter"},
+  {id:"academic",label:"Academic help",desc:"Studying, writing, math",icon:"ti-book"},
+  {id:"advising",label:"Degree planning",desc:"Courses, minors, changes",icon:"ti-route"},
+  {id:"financial",label:"Tuition & billing",desc:"Fees, accounts",icon:"ti-credit-card"},
+  {id:"mental",label:"Mental health",desc:"Counselling, support",icon:"ti-heart"},
+  {id:"medical",label:"Medical care",desc:"Clinic, vaccinations",icon:"ti-stethoscope"},
+  {id:"tech",label:"Tech & IT",desc:"Wifi, email, software",icon:"ti-device-laptop"},
+  {id:"library",label:"Research & library",desc:"Databases, citations",icon:"ti-building-library"},
+  {id:"career",label:"Career planning",desc:"Skill dev, future",icon:"ti-briefcase"},
+  {id:"identity",label:"Tailored support",desc:"Black, Indigenous, intl…",icon:"ti-users"},
+  {id:"disability",label:"Disability services",desc:"Accommodations",icon:"ti-accessible"},
+  {id:"family",label:"Students with children",desc:"Family resources",icon:"ti-baby-carriage"},
+  {id:"sexual",label:"Sexual health",desc:"Contraception, products",icon:"ti-shield-heart"},
+  {id:"general",label:"General question",desc:"Not sure where to go",icon:"ti-help"},
+];
+
+const quiz=[
+  {id:"q1",q:"What best describes your situation right now?",opts:[
+    {label:"I just started at Concordia",icon:"ti-door-enter",next:"q2_new"},
+    {label:"I'm a continuing student",icon:"ti-school",next:"q2_cont"},
+    {label:"I need help urgently",icon:"ti-urgent",next:"q_urgent"},
+  ]},
+  {id:"q2_new",q:"What do you need most right now?",opts:[
+    {label:"Help with registration or navigating Concordia",icon:"ti-map",tags:["new"],next:"result"},
+    {label:"Understanding my degree or courses",icon:"ti-route",tags:["advising","new"],next:"result"},
+    {label:"Meeting other students or getting settled",icon:"ti-users",tags:["new"],next:"result"},
+    {label:"Something else",icon:"ti-dots",next:"q_other"},
+  ]},
+  {id:"q2_cont",q:"What are you looking for help with?",opts:[
+    {label:"Academic support — studying, writing, math",icon:"ti-book",tags:["academic"],next:"result"},
+    {label:"Degree planning or program changes",icon:"ti-route",tags:["advising"],next:"result"},
+    {label:"Research, library, or citations",icon:"ti-building-library",tags:["library"],next:"result"},
+    {label:"Career planning",icon:"ti-briefcase",tags:["career"],next:"result"},
+    {label:"Health or wellness",icon:"ti-heart",next:"q_health"},
+    {label:"Tuition, IT, or something else",icon:"ti-settings",next:"q_other"},
+  ]},
+  {id:"q_urgent",q:"What kind of urgent help do you need?",opts:[
+    {label:"Mental health or counselling",icon:"ti-heart",tags:["mental"],next:"result"},
+    {label:"Medical care or clinic",icon:"ti-stethoscope",tags:["medical"],next:"result"},
+    {label:"I don't know — just direct me",icon:"ti-help",tags:["general"],next:"result"},
+  ]},
+  {id:"q_health",q:"What kind of health support are you looking for?",opts:[
+    {label:"Mental health or counselling",icon:"ti-heart",tags:["mental"],next:"result"},
+    {label:"Medical care, clinic, or vaccinations",icon:"ti-stethoscope",tags:["medical"],next:"result"},
+    {label:"Sexual or reproductive health",icon:"ti-shield-heart",tags:["sexual"],next:"result"},
+  ]},
+  {id:"q_other",q:"Pick the area that fits best:",opts:[
+    {label:"Tuition or billing",icon:"ti-credit-card",tags:["financial"],next:"result"},
+    {label:"Tech, wifi, or IT",icon:"ti-device-laptop",tags:["tech"],next:"result"},
+    {label:"Disability services or accommodations",icon:"ti-accessible",tags:["disability"],next:"result"},
+    {label:"Support for specific student groups",icon:"ti-users-group",tags:["identity"],next:"result"},
+    {label:"Students with children",icon:"ti-baby-carriage",tags:["family"],next:"result"},
+    {label:"Not sure — just direct me",icon:"ti-help",tags:["general"],next:"result"},
+  ]},
+];
+
+let quizHistory=[], quizTags=[], selectedNeeds=new Set();
+
+function switchTab(t){
+  document.querySelectorAll(".tab").forEach((b,i)=>{
+    b.classList.toggle("active",["quiz","browse","edit"][i]===t);
+  });
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  document.getElementById("view-"+t).classList.add("active");
+  if(t==="quiz"&&quizHistory.length===0)showStep("q1");
+  if(t==="browse")renderBrowse();
+  if(t==="edit")renderEditor();
+}
+
+function showStep(id){
+  if(id==="result"){showResult();return;}
+  const step=quiz.find(s=>s.id===id);
+  if(!step)return;
+  const pct=Math.min(85,(quizHistory.length/5)*100);
+  document.getElementById("qprog").style.width=pct+"%";
+  document.getElementById("quiz-content").innerHTML=`
+    ${quizHistory.length?`<button class="quiz-back" onclick="goBack()"><i class="ti ti-arrow-left"></i> Back</button>`:""}
+    <div class="quiz-card">
+      <div class="quiz-q">${step.q}</div>
+      <div class="quiz-opts">${step.opts.map(o=>`
+        <button class="quiz-opt" onclick='pick(${JSON.stringify(o)})'>
+          <i class="ti ${o.icon}"></i><span>${o.label}</span>
+        </button>`).join("")}
+      </div>
+    </div>`;
+}
+
+function pick(opt){
+  quizHistory.push({stepId:quiz.find(s=>s.opts&&s.opts.some(o=>o.label===opt.label))?.id,opt});
+  if(opt.tags)quizTags=[...quizTags,...opt.tags];
+  showStep(opt.next);
+}
+
+function goBack(){
+  const last=quizHistory.pop();
+  if(last?.opt?.tags)quizTags=quizTags.filter(t=>!last.opt.tags.includes(t));
+  if(!quizHistory.length){quizTags=[];showStep("q1");}
+  else showStep(quizHistory[quizHistory.length-1]?.stepId||"q1");
+}
+
+function showResult(){
+  document.getElementById("qprog").style.width="100%";
+  const tags=[...new Set(quizTags)];
+  const matched=resources.filter(r=>r.needs.some(n=>tags.includes(n)));
+  document.getElementById("quiz-content").innerHTML=`
+    <button class="quiz-back" onclick="resetQuiz()"><i class="ti ti-refresh"></i> Start over</button>
+    <div class="result-header">
+      <div class="section-label" style="margin:0">Your matched resources</div>
+      <span class="result-count">${matched.length} found</span>
+    </div>
+    <div class="results">${matched.length?matched.map(renderCard).join(""):renderCard(resources[0])}</div>`;
+}
+
+function resetQuiz(){quizHistory=[];quizTags=[];showStep("q1");}
+
+function renderCard(r){
+  const c=colorMap[r.color]||colorMap.gray;
+  const ts=tagStyles[r.color]||tagStyles.gray;
+  return `<div class="rcard">
+    <div class="ricon" style="background:${c.bg}"><i class="ti ${r.icon}" style="color:${c.ic}"></i></div>
+    <div class="rbody">
+      <div class="rname">${r.name}</div>
+      <div class="rdesc">${r.desc}</div>
+      <div class="rtags">${r.tags.map(t=>`<span class="tag" style="${ts}">${t}</span>`).join("")}</div>
+      ${r.url?`<a href="${r.url}" target="_blank" class="rlink"><i class="ti ti-external-link"></i> Visit Concordia page</a>`:""}
+    </div>
+  </div>`;
+}
+
+function renderBrowse(){
+  document.getElementById("needsGrid").innerHTML=needs.map(n=>`
+    <button class="need-btn${selectedNeeds.has(n.id)?" sel":""}" onclick="toggleNeed('${n.id}')">
+      <i class="ti ${n.icon}"></i>
+      <div><div class="nblabel">${n.label}</div><div class="nbdesc">${n.desc}</div></div>
+    </button>`).join("");
+  const el=document.getElementById("browseResults");
+  if(!selectedNeeds.size){
+    el.innerHTML=`<div class="select-prompt"><i class="ti ti-arrow-up" style="font-size:18px;display:block;margin-bottom:6px"></i>Select one or more needs above to see matched resources.</div>`;
+    return;
+  }
+  const matched=resources.filter(r=>r.needs.some(n=>selectedNeeds.has(n)));
+  el.innerHTML=`
+    <div class="result-header">
+      <div class="section-label" style="margin:0">Matching resources</div>
+      <span class="result-count">${matched.length} found</span>
+    </div>
+    <div class="results">${matched.length?matched.map(renderCard).join(""):
+    `<div style="text-align:center;padding:1.5rem;color:var(--text2);font-size:14px">No specific match — try <strong>First Stop</strong> for any question.</div>`}</div>`;
+}
+
+function toggleNeed(id){
+  selectedNeeds.has(id)?selectedNeeds.delete(id):selectedNeeds.add(id);
+  renderBrowse();
+}
+
+function renderEditor(){
+  document.getElementById("editFormContainer").innerHTML="";
+  document.getElementById("editorList").innerHTML=resources.map(r=>`
+    <div class="editor-item" onclick="openForm(${r.id})">
+      <i class="ti ${r.icon}" style="color:${(colorMap[r.color]||colorMap.gray).ic};font-size:18px"></i>
+      <span class="ei-name">${r.name}</span>
+      <span class="ei-tags">${r.tags.slice(0,2).join(", ")}</span>
+      <i class="ti ti-chevron-right ei-chevron"></i>
+    </div>`).join("");
+}
+
+function openForm(id){
+  const r=id===-1?{id:-1,name:"",desc:"",icon:"ti-star",color:"purple",tags:[],needs:[],url:""}:resources.find(x=>x.id===id);
+  document.getElementById("editFormContainer").innerHTML=`
+    <div class="edit-form">
+      <div class="form-row"><label class="form-label">Resource name</label><input id="ef-name" value="${r.name}" placeholder="e.g. Writing Centre"></div>
+      <div class="form-row"><label class="form-label">Description</label><textarea id="ef-desc">${r.desc}</textarea></div>
+      <div class="form-row"><label class="form-label">Tags (comma separated)</label><input id="ef-tags" value="${r.tags.join(", ")}"></div>
+      <div class="form-row"><label class="form-label">Concordia page URL</label><input id="ef-url" value="${r.url||""}" placeholder="https://www.concordia.ca/..."></div>
+      <div class="form-row"><label class="form-label">Color theme</label>
+        <select id="ef-color">${Object.keys(colorMap).map(c=>`<option value="${c}"${r.color===c?" selected":""}>${c}</option>`).join("")}</select>
+      </div>
+      <div class="form-row"><label class="form-label">Need IDs (comma separated — e.g. academic, mental, new)</label>
+        <input id="ef-needs" value="${r.needs.join(", ")}" placeholder="academic, mental, new…"></div>
+      <div class="form-actions">
+        <button class="btn-save" onclick="saveForm(${r.id})">Save changes</button>
+        ${id!==-1?`<button class="btn-delete" onclick="delResource(${r.id})">Delete</button>`:""}
+        <button class="btn-cancel" onclick="cancelForm()">Cancel</button>
+        <span id="saved-toast" class="saved-toast"><i class="ti ti-check"></i> Saved!</span>
+      </div>
+    </div>`;
+  document.getElementById("editFormContainer").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+function saveForm(id){
+  const name=document.getElementById("ef-name").value.trim();
+  const desc=document.getElementById("ef-desc").value.trim();
+  const tags=document.getElementById("ef-tags").value.split(",").map(t=>t.trim()).filter(Boolean);
+  const url=document.getElementById("ef-url").value.trim();
+  const color=document.getElementById("ef-color").value;
+  const nds=document.getElementById("ef-needs").value.split(",").map(t=>t.trim()).filter(Boolean);
+  if(!name)return;
+  if(id===-1){resources.push({id:nextId++,name,desc,icon:"ti-star",color,tags,needs:nds,url});}
+  else{const i=resources.findIndex(r=>r.id===id);if(i>-1)resources[i]={...resources[i],name,desc,tags,url,color,needs:nds};}
+  const t=document.getElementById("saved-toast");
+  if(t){t.style.display="inline-flex";setTimeout(()=>{t.style.display="none";renderEditor();},1200);}
+}
+
+function delResource(id){
+  if(!confirm("Delete this resource?"))return;
+  resources=resources.filter(r=>r.id!==id);
+  renderEditor();
+}
+
+function cancelForm(){document.getElementById("editFormContainer").innerHTML="";}
+function addResource(){openForm(-1);setTimeout(()=>document.getElementById("ef-name")?.focus(),50);}
+
+showStep("q1");
+</script>
+</body>
+</html>
